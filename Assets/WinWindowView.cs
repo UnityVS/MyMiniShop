@@ -16,6 +16,18 @@ public class WinWindowView : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         canvasGroup.alpha = 0f;
+
+        switch (BallsController.GetInstance.GetTask)
+        {
+            case EWinTask.BlowUpAllBalls:
+                textWinComponent.text = $"<size=100>Victory!</size>\r\nCollected: All balls";
+                break;
+            case EWinTask.BlowUpAllOneSomeColorBalls:
+                textWinComponent.text = $"<size=100>Victory!</size>\r\nCollected: All <color={BallsController.GetInstance.GetEBallType.ToString().ToLower()}>{BallsController.GetInstance.GetEBallType}</color> balls";
+                break;
+        }
+        CanvasController.Instance.GetGamePlayView.HideWindow();
+        ShowWinWindow();
     }
 
     private void OnEnable() => buttonContinue.onClick.AddListener(ContinuePlaying);

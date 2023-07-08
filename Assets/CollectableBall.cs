@@ -28,12 +28,12 @@ public class CollectableBall : MonoBehaviour
         _currentBallType = ballTypeValue;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.TryGetComponent(out CollectableBall ball))
+        if (other.gameObject.TryGetComponent(out ShootableBall ball))
         {
             BallsController.GetInstance.GetHowBallsCollected[_currentBallType] += 1;
-            
+            BallsController.GetInstance.CheckWin();
             Destroy(gameObject);
         }
     }

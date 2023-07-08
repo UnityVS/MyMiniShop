@@ -1,23 +1,34 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class RaycastManager : MonoBehaviour
+namespace core
 {
-    private Camera _cameraMain;
-
-    private void Awake()
+    public class RaycastManager : MonoBehaviour
     {
-        _cameraMain = Camera.main;
-    }
+        public static core.RaycastManager Instance;
+        private Camera _cameraMain;
+        private Trader _traderHitted;
+        public bool GetTraderHittedInfo() => _traderHitted ? true : false;
 
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+        private void Awake()
         {
-            Ray ray = _cameraMain.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
-                if (hit.collider.TryGetComponent(out Trader trader))
-                    trader.ShowMarker();
+            if (Instance) Destroy(gameObject); else Instance = this;
+            _cameraMain = Camera.main;
+        }
+
+        private void Update()
+        {
+            if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+            {
+                Ray ray = _cameraMain.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                    if (hit.collider.TryGetComponent(out Trader trader))
+                    {
+                        _traderHitted = trader;
+                        trader.ShowMarker();
+                    }
+                    else _traderHitted = null;
+            }
         }
     }
 }

@@ -9,25 +9,28 @@ public class TradingView : MonoBehaviour
     [SerializeField] private List<Sprite> fruitsList;
     [SerializeField] private List<Sprite> armorsList;
     [SerializeField] private List<TradeableItem> _tradeableItemsList = new List<TradeableItem>();
-    private CanvasGroup canvasGroup;
+    private CanvasGroup _canvasGroup;
     private Tween _tween;
     private Coroutine _coroutine;
+    private ETraderState _currentTraderState;
+    public CanvasGroup GetCanvasGroup => _canvasGroup;
+    public void SetTraderState(ETraderState value) => _currentTraderState = value;
     private void Awake()
     {
-        canvasGroup = GetComponent<CanvasGroup>();
-        UnFillItems();
+        _canvasGroup = GetComponent<CanvasGroup>();
     }
 
     public void ShowWindow(ETraderState traderState)
     {
-        switch (traderState)
+
+    }
+
+    private void WaitForFilling()
+    {
+        if (_coroutine == null)
         {
-            case ETraderState.ArmorTrading:
-                if (_coroutine == null) _coroutine = StartCoroutine(FillItems(armorsList));
-                break;
-            case ETraderState.FruitsTrading:
-                if (_coroutine == null) _coroutine = StartCoroutine(FillItems(fruitsList));
-                break;
+            _coroutine = StartCoroutine(FillItems(fruitsList));
+            CancelInvoke();
         }
     }
 
@@ -49,17 +52,28 @@ public class TradingView : MonoBehaviour
             if (currentIndex == maxFillItemsCount) break;
         }
         yield return new WaitUntil(() => currentIndex == maxFillItemsCount);
-        gameObject.SetActive(true);
         _coroutine = null;
     }
 
     private void OnEnable()
     {
-        canvasGroup.alpha = 0f;
+        _canvasGroup.alpha = 0f;
         buttonBack.onClick.AddListener(ContinuePlaying);
+        _tween = _canvasGroup.DOFade(1f, 0.25f);
+        switch (_currentTraderState)
+        {
+            case ETraderState.ArmorTrading:
+                if (_coroutine == null) _coroutine = StartCoroutine(FillItems(armorsList));
+                else InvokeRepeating(nameof(WaitForFilling), 0, 0.1f);
+                break;
+            case ETraderState.FruitsTrading:
+                if (_coroutine == null) _coroutine = StartCoroutine(FillItems(fruitsList));
+                else InvokeRepeating(nameof(WaitForFilling), 0, 0.1f);
+                break;
+        }
     }
 
-    private void ContinuePlaying() => _tween = canvasGroup.DOFade(0f, 1f).OnComplete(() => gameObject.SetActive(false));
+    private void ContinuePlaying() => _tween = _canvasGroup.DOFade(0f, 0.15f).OnComplete(() => gameObject.SetActive(false));
 
     private void OnDisable()
     {

@@ -9,7 +9,13 @@ public class TradeableItem : MonoBehaviour
 
     private void Awake() => _buttonBuy = GetComponent<Button>();
 
-    private void OnEnable() => _buttonBuy.onClick.AddListener(delegate { Debug.Log("Buyed!"); gameObject.SetActive(false); });
+    private void Start()
+    {
+        _buttonBuy.onClick.AddListener(delegate { Debug.Log("Buyed!"); imageItem.gameObject.SetActive(false); });
+    }
 
-    private void OnDisable() => _buttonBuy.onClick = null;
+    private void OnDestroy()
+    {
+        _buttonBuy.onClick = null;
+    }
 }

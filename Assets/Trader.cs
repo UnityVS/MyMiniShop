@@ -1,5 +1,6 @@
 ﻿using DG.Tweening;
 using System;
+using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -12,27 +13,27 @@ public enum ETraderState
 
 public class Trader : MonoBehaviour
 {
-    private CanvasGroup canvasGroup;
-    private ETraderState _currentTraderState;
+    [SerializeField] private CanvasGroup _currentTextErrorCanvasGroup;
     private Tween _tween;
-
-    private void Awake()
-    {
-        canvasGroup = GetComponent<CanvasGroup>();
-        canvasGroup.alpha = 0f;
-    }
 
     public void ShowMarker()
     {
-        _currentTraderState = (ETraderState)Random.Range(0, Enum.GetValues(typeof(ETraderState)).Length + 1);
-
+        ETraderState _currentTraderState = (ETraderState)Random.Range(0, Enum.GetValues(typeof(ETraderState)).Length);
+        Debug.Log(_currentTraderState);
         if (_currentTraderState == ETraderState.NoTradeWithPlayer)
         {
-            _tween = canvasGroup.DOFade(1f, 1f).OnComplete(() => _tween.SetDelay(1.5f).OnComplete(() => canvasGroup.DOFade(0f, 0.5f)).OnComplete(() => _tween.Kill()));
-            return;
+            _tween = _currentTextErrorCanvasGroup.DOFade(1f, 1f).OnComplete(() => WaitALittle());
         }
+        else
+        {
+            CanvasController.Instance.GetTradingWindow.SetTraderState(_currentTraderState);
+            CanvasController.Instance.GetTradingWindow.gameObject.SetActive(true);
+        }
+    }
 
-        CanvasController.Instance.GetTradingWindow.ShowWindow(_currentTraderState);
+    private void WaitALittle()
+    {
+        _currentTextErrorCanvasGroup.DOFade(0f, 0.5f).SetDelay(1f);
     }
 
     private void OnDisable()
