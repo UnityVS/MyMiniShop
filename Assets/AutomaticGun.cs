@@ -1,4 +1,1 @@
-﻿    public class AutomaticGun : Weapon
-{
-
-    }
+﻿public interface AutomaticGun { }
